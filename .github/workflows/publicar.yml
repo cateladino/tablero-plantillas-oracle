@@ -1,0 +1,50 @@
+name: Publicar tablero
+
+# Se dispara cuando cambia el Excel de control (o la plantilla del tablero).
+# También se puede lanzar a mano desde la pestaña Actions, con "Run workflow".
+on:
+  push:
+    paths:
+      - 'datos/**.xlsx'
+      - 'plantilla/**'
+      - 'scripts/**'
+      - '.github/workflows/publicar.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar-tablero
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Traer el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install --quiet openpyxl
+
+      - name: Regenerar el tablero desde el Excel
+        run: python scripts/generar.py
+
+      - name: Publicar el corte
+        run: |
+          git config user.name  "Tablero de plantillas"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html datos/historico.json
+          if git diff --staged --quiet; then
+            echo "El tablero ya estaba al día: no hay nada que publicar."
+          else
+            git commit -m "Corte del $(TZ=America/Mexico_City date '+%d/%m/%Y %H:%M')"
+            git push
+            echo "Publicado en https://cateladino.github.io/tablero-plantillas-oracle/"
+          fi

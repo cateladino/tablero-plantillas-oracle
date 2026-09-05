@@ -1,4 +1,6 @@
-# El archivo maestro no se publica: contiene el control interno completo
+# Los Excel no se publican, salvo el archivo de control que alimenta al tablero
 *.xlsx
 *.xlsm
+!datos/*.xlsx
+~$*
 .DS_Store
