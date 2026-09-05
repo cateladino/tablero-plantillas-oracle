@@ -1,0 +1,4 @@
+# El archivo maestro no se publica: contiene el control interno completo
+*.xlsx
+*.xlsm
+.DS_Store
