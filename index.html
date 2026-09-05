@@ -14,6 +14,7 @@
   --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}   /* gana sobre display:flex de .fila */
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased}
@@ -100,6 +101,22 @@ select:focus,input:focus,.btn:focus-visible,th:focus-visible{outline:2px solid v
 .legend i{display:inline-block;width:11px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
 footer{max-width:1560px;margin:0 auto;padding:0 26px 30px;color:var(--mute);font-size:11px}
 .empty{padding:34px;text-align:center;color:var(--mute)}
+/* ---------- Publicar en GitHub (solo PMO) ---------- */
+.pub{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ok);
+  border-radius:9px;padding:16px 18px;margin-bottom:16px;box-shadow:var(--shadow);max-width:760px}
+.pub h3{margin:0 0 4px;font-size:14.5px;color:var(--navy);font-weight:650}
+.pub p{margin:0 0 12px;font-size:12.5px;color:var(--mute);line-height:1.6}
+.pub .fila{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.pub input[type=password],.pub input[type=text]{flex:1;min-width:260px}
+.pub label{font-size:12px;color:var(--mute);display:flex;align-items:center;gap:6px}
+.pub .btn{background:var(--navy);border-color:var(--navy);color:#fff}
+.pub .btn.sec{background:#fff;color:var(--navy);border:1px solid #CFD8E3}
+.pub .msj{margin-top:11px;font-size:12.5px;line-height:1.6;padding:9px 12px;border-radius:6px;display:none}
+.pub .msj.ok{display:block;background:var(--okbg);color:var(--ok);border:1px solid #ABEFC6}
+.pub .msj.error{display:block;background:var(--badbg);color:var(--bad);border:1px solid #FECDCA}
+.pub .msj.espera{display:block;background:var(--donebg);color:var(--done);border:1px solid #B2DDFF}
+.pub .msj a{color:inherit;font-weight:600}
+
 /* ---------- Vista ejecutiva (Presentación) ---------- */
 .ej{display:none}
 body.pres .ej{display:block}
@@ -185,6 +202,7 @@ body.pres .det{display:none}
       </div>
       <button class="btn primary" onclick="document.getElementById('file').click()">Cargar archivo Excel</button>
       <input type="file" id="file" accept=".xlsx,.xlsm,.csv" style="display:none">
+      <button class="btn primary" id="bpub" hidden onclick="abrirPublicar()">Publicar en el sitio</button>
       <button class="btn primary" onclick="guardarCorte()">Guardar corte (HTML)</button>
       <button class="btn" onclick="exportarCSV()">Exportar vista (CSV)</button>
       <button class="btn" onclick="window.print()">Imprimir / PDF</button>
@@ -194,6 +212,21 @@ body.pres .det{display:none}
 
 <main>
   <div class="origen" id="origen"></div>
+
+  <div class="pub" id="pubpanel" hidden>
+    <h3>Publicar este corte en el sitio</h3>
+    <p id="pubintro"></p>
+    <div class="fila" id="pubtoken">
+      <input type="password" id="ghtoken" placeholder="Token de GitHub (empieza con github_pat_ o ghp_)" autocomplete="off">
+      <label><input type="checkbox" id="ghrec" checked> Recordarlo en este navegador</label>
+    </div>
+    <div class="fila" style="margin-top:11px">
+      <button class="btn" id="bpubok" onclick="publicarGitHub()">Publicar</button>
+      <button class="btn sec" onclick="cerrarPublicar()">Cancelar</button>
+      <button class="btn sec" id="bpubolvidar" hidden onclick="olvidarToken()">Usar otro token</button>
+    </div>
+    <div class="msj" id="pubmsj"></div>
+  </div>
 
   <div class="drop" id="drop" style="display: none;">
     <h3>Arrastra aquí el archivo <b>Control_Plantillas_NetSuite_V1.xlsx</b></h3>
@@ -317,7 +350,7 @@ let DATOS = [], ORIGEN = "demo", NOMBRE_ARCHIVO = "", ORDEN = {col:"id", dir:1};
 
 const SEED  = /*SEED_INI*/[{"id":"FIN-01","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Clases","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-02","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - COA MX Plan de Cuentas","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-07-30","obs":"","e":[{"est":"Completado","comp":"03/09/2026","real":"03/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"}]},{"id":"FIN-03","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Departamentos","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-04","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Plantilla Subsidiarias","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-05","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Ubicaciones","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"07/09/2026","real":""},{"est":"En proceso","comp":"08/09/2026","real":""},{"est":"No iniciado","comp":"08/09/2026","real":""}]},{"id":"CMP-01","modulo":"Compras (P2P)","codigo":"210","plantilla":"Proveedores","area":"Compras / Abastecimiento","keyuser":"Nancy Ruiz Ruiz\nAna Laura Cedillo","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"","obs":"","e":[{"est":"Completado","comp":"07/09/2026","real":""},{"est":"En proceso","comp":"08/09/2026","real":""},{"est":"No iniciado","comp":"08/09/2026","real":""}]},{"id":"CMP-02","modulo":"Compras (P2P)","codigo":"220","plantilla":"Empleados","area":"Capital Humano","keyuser":"Caterrine Ladino","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"","obs":"","e":[{"est":"Completado","comp":"03/09/2026","real":"03/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"}]},{"id":"VTA-01","modulo":"Ventas (O2C)","codigo":"300","plantilla":"MX Clientes","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"Completado","comp":"09/09/2026","real":""},{"est":"En proceso","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"VTA-02","modulo":"Ventas (O2C)","codigo":"310","plantilla":"MX Contactos","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"VTA-03","modulo":"Ventas (O2C)","codigo":"320","plantilla":"MX Direcciones","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-01","modulo":"Inventarios (D2B)","codigo":"401","plantilla":"MX Unidades de Medida","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-02","modulo":"Inventarios (D2B)","codigo":"402","plantilla":"MX SAT Clave Producto Servicio","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-03","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-03","modulo":"Inventarios (D2B)","codigo":"403","plantilla":"MX SAT Clave de Unidad","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-04","modulo":"Inventarios (D2B)","codigo":"404","plantilla":"MX SAT Clave Arancelaria","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-05","modulo":"Inventarios (D2B)","codigo":"410","plantilla":"MX Artículo de Inventario","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-06","modulo":"Inventarios (D2B)","codigo":"411","plantilla":"MX Artículo Fuera de Inventario para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-07","modulo":"Inventarios (D2B)","codigo":"412","plantilla":"MX Artículo Fuera de Inventario para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-08","modulo":"Inventarios (D2B)","codigo":"413","plantilla":"MX Artículo Fuera de Inventario para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-09","modulo":"Inventarios (D2B)","codigo":"414","plantilla":"MX Artículo con Descuento","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-10","modulo":"Inventarios (D2B)","codigo":"415","plantilla":"MX Artículo con Recargo","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-11","modulo":"Inventarios (D2B)","codigo":"416","plantilla":"MX Artículo de Servicio para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-12","modulo":"Inventarios (D2B)","codigo":"417","plantilla":"MX Artículo de Servicio para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-13","modulo":"Inventarios (D2B)","codigo":"418","plantilla":"MX Artículo de Servicio para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-14","modulo":"Inventarios (D2B)","codigo":"419","plantilla":"MX Artículo de Otro Cargo para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-15","modulo":"Inventarios (D2B)","codigo":"420","plantilla":"MX Artículo de Otro Cargo para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-16","modulo":"Inventarios (D2B)","codigo":"421","plantilla":"MX Artículo de Otro Cargo para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-17","modulo":"Inventarios (D2B)","codigo":"450","plantilla":"MX Grupo de Artículos","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-18","modulo":"Inventarios (D2B)","codigo":"451","plantilla":"MX Kit de Artículos","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-19","modulo":"Inventarios (D2B)","codigo":"460","plantilla":"MX Artículos de Inventario por Lote","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-20","modulo":"Inventarios (D2B)","codigo":"461","plantilla":"MX Artículos de Inventario por Serie","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-21","modulo":"Inventarios (D2B)","codigo":"462","plantilla":"MX Depósito","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-22","modulo":"Inventarios (D2B)","codigo":"464","plantilla":"MX Configuración de Ubicación de Artículo","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-23","modulo":"Inventarios (D2B)","codigo":"472","plantilla":"MX Costo de Revaluación de Inventario","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-01","modulo":"Manufactura (MFG)","codigo":"410","plantilla":"MX Artículo de Inventario Manufactura","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-04","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-02","modulo":"Manufactura (MFG)","codigo":"500","plantilla":"Artículos Otros Cargos para la Compra","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-03","modulo":"Manufactura (MFG)","codigo":"510","plantilla":"Listas de Materiales","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-05","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-04","modulo":"Manufactura (MFG)","codigo":"520","plantilla":"Revisión de Listas de Materiales Estándar","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-05","modulo":"Manufactura (MFG)","codigo":"530","plantilla":"Artículos de Ensamble Lotizados","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-06","modulo":"Manufactura (MFG)","codigo":"540","plantilla":"Artículos de Ensamble","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"ACF-01","modulo":"Activos Fijos (FA)","codigo":"600","plantilla":"Tipos de Activo Fijo","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"ACF-02","modulo":"Activos Fijos (FA)","codigo":"610","plantilla":"Alta de Activos Fijos","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"ACF-03","modulo":"Activos Fijos (FA)","codigo":"620","plantilla":"Métodos y Reglas de Depreciación","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"FIN-06","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Impuestos y Retenciones MX","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"05/09/2026","obs":"Identificada en el Drive del proyecto (08_ESTEVEZ - Impuestos y Retenciones MX, últ. modificación 05/09/2026). Falta acordar fecha compromiso.","e":[{"est":"En proceso","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]}]/*SEED_FIN*/;
 const HIST = /*HIST_INI*/[{"fecha":"05/09/2026","total":43,"ent":5,"sin":3,"proceso":35}]/*HIST_FIN*/;   // cortes anteriores, para medir el avance entre semanas
-const SELLO = /*SELLO_INI*/{"archivo":"Control_Plantillas_NetSuite_V1.xlsx","fecha":"05/09/2026 13:05"}/*SELLO_FIN*/;
+const SELLO = /*SELLO_INI*/{"archivo":"Control_Plantillas_NetSuite_V1.xlsx","fecha":"05/09/2026 13:18"}/*SELLO_FIN*/;
 
 /* ---------- utilidades ---------- */
 const hoy = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
@@ -415,7 +448,8 @@ function leerLibro(wb, nombre){
 function cargar(file){
   const fr = new FileReader();
   fr.onload = ev => {
-    try{ leerLibro(XLSX.read(new Uint8Array(ev.target.result),{type:"array",cellDates:true}), file.name); }
+    try{ leerLibro(XLSX.read(new Uint8Array(ev.target.result),{type:"array",cellDates:true}), file.name);
+         ARCHIVO = file; if(modoPMO()) abrirPublicar(); }
     catch(err){ alert("No fue posible leer el archivo.\n\n"+err.message); }
   };
   fr.onerror = () => alert("No fue posible abrir el archivo. Intenta cargarlo nuevamente.");
@@ -426,6 +460,98 @@ const drop = document.getElementById("drop");
 ["dragenter","dragover"].forEach(ev=>document.body.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("hot");}));
 ["dragleave","drop"].forEach(ev=>document.body.addEventListener(ev,e=>{e.preventDefault();
   if(ev==="drop"&&e.dataTransfer.files[0]) cargar(e.dataTransfer.files[0]); drop.classList.remove("hot");}));
+
+/* ---------- publicar en el sitio (solo PMO) ---------- */
+/* El token de GitHub nunca viaja dentro de esta página: lo escribe la PMO una vez
+   y se queda en el navegador de su equipo. Cualquier otra persona que abra el sitio
+   ve el tablero, pero no puede publicar.                                            */
+const GH = { duenio:"cateladino", repo:"tablero-plantillas-oracle", rama:"main",
+             ruta:"datos/Control_Plantillas_NetSuite_V1.xlsx" };
+let ARCHIVO = null;                 // el Excel cargado en esta sesión
+
+const tokenGuardado = () => { try{ return localStorage.getItem("gh_token") || ""; }catch(e){ return ""; } };
+function modoPMO(){
+  return !!tokenGuardado() || location.protocol === "file:" ||
+         new URLSearchParams(location.search).has("pmo");
+}
+function botonPublicar(){ document.getElementById("bpub").hidden = !modoPMO(); }
+
+function abrirPublicar(){
+  const panel = document.getElementById("pubpanel"), msj = document.getElementById("pubmsj");
+  const guardado = tokenGuardado();
+  panel.hidden = false;
+  msj.className = "msj"; msj.innerHTML = "";
+  document.getElementById("pubtoken").hidden = !!guardado;
+  document.getElementById("bpubolvidar").hidden = !guardado;
+  document.getElementById("bpubok").disabled = !ARCHIVO;
+  document.getElementById("pubintro").innerHTML = ARCHIVO
+    ? `Se subirá <b>${esc(ARCHIVO.name)}</b> al repositorio y el sitio se regenerará solo.
+       Tus jefes verán este corte en aproximadamente un minuto.`
+    : `Primero usa <b>Cargar archivo Excel</b> para revisar el corte aquí. Cuando el tablero
+       muestre lo que quieres publicar, vuelve a este botón.`;
+  panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function cerrarPublicar(){ document.getElementById("pubpanel").hidden = true; }
+function olvidarToken(){
+  try{ localStorage.removeItem("gh_token"); }catch(e){}
+  abrirPublicar();
+}
+const b64archivo = f => new Promise((ok,fail)=>{
+  const fr = new FileReader();
+  fr.onload = () => ok(String(fr.result).split(",")[1]);
+  fr.onerror = () => fail(new Error("No fue posible leer el archivo."));
+  fr.readAsDataURL(f);
+});
+async function publicarGitHub(){
+  const msj = document.getElementById("pubmsj"), boton = document.getElementById("bpubok");
+  const aviso = (clase, html) => { msj.className = "msj " + clase; msj.innerHTML = html; };
+  if(!ARCHIVO){ aviso("error","Carga primero el archivo Excel."); return; }
+
+  let tok = tokenGuardado();
+  if(!tok){
+    tok = document.getElementById("ghtoken").value.trim();
+    if(!tok){ aviso("error","Escribe el token de GitHub para poder publicar."); return; }
+  }
+  boton.disabled = true;
+  aviso("espera","Subiendo el archivo a GitHub…");
+  try{
+    const cab = { Authorization:"Bearer "+tok, Accept:"application/vnd.github+json",
+                  "X-GitHub-Api-Version":"2022-11-28" };
+    const url = `https://api.github.com/repos/${GH.duenio}/${GH.repo}/contents/${GH.ruta}`;
+
+    const previo = await fetch(`${url}?ref=${GH.rama}`, {headers:cab});
+    if(previo.status === 401) throw new Error("El token no es válido o ya caducó. Genera uno nuevo en GitHub.");
+    if(previo.status === 403) throw new Error("El token no tiene permiso de escritura sobre este repositorio.");
+    if(!previo.ok && previo.status !== 404) throw new Error("GitHub respondió con un error ("+previo.status+").");
+    const sha = previo.ok ? (await previo.json()).sha : undefined;
+
+    const envio = await fetch(url, {
+      method:"PUT", headers:cab,
+      body: JSON.stringify({
+        message: "Corte del " + marca(new Date()),
+        content: await b64archivo(ARCHIVO),
+        branch: GH.rama, sha
+      })
+    });
+    if(!envio.ok){
+      const d = await envio.json().catch(()=>({}));
+      throw new Error(d.message || ("GitHub respondió con un error ("+envio.status+")."));
+    }
+
+    if(document.getElementById("ghrec").checked){
+      try{ localStorage.setItem("gh_token", tok); }catch(e){}
+    }
+    aviso("ok", `Archivo publicado. GitHub está regenerando el tablero; en aproximadamente un minuto
+      <a href="https://${GH.duenio}.github.io/${GH.repo}/" target="_blank" rel="noopener">el sitio</a>
+      mostrará este corte.`);
+    document.getElementById("pubtoken").hidden = true;
+    document.getElementById("bpubolvidar").hidden = false;
+  }catch(err){
+    aviso("error", esc(err.message));
+  }finally{
+    boton.disabled = false;
+  }
+}
 
 /* ---------- filtros ---------- */
 function opciones(sel, titulo, valores){
@@ -774,6 +900,7 @@ function exportarCSV(){
   a.click(); URL.revokeObjectURL(a.href);
 }
 
+botonPublicar();
 if(SELLO && SELLO.archivo){ ORIGEN = "corte"; NOMBRE_ARCHIVO = SELLO.archivo; }
 DATOS = SEED.map(calcular);
 render();
