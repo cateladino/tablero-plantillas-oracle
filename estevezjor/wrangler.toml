@@ -1,0 +1,8 @@
+name = "publicar-tablero"
+main = "publicar.js"
+compatibility_date = "2026-01-01"
+
+# Los secretos (CLAVE_EQUIPO y GH_TOKEN) NO van aquí: se cargan con
+#   wrangler secret put CLAVE_EQUIPO
+#   wrangler secret put GH_TOKEN
+# y quedan guardados del lado de Cloudflare, nunca en el repositorio.

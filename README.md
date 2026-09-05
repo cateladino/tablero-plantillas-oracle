@@ -6,12 +6,15 @@ Seguimiento del llenado, revisión y carga de las plantillas de migración a Ora
 
 ## Cómo actualizar el tablero
 
-1. Entra a la carpeta [`datos/`](datos) de este repositorio.
-2. **Add file → Upload files** y arrastra el Excel de control actualizado.
-3. **Commit changes.**
+Desde el propio tablero, con la contraseña del equipo:
 
-Eso es todo. En cuanto se sube el archivo, el sitio se regenera solo y en aproximadamente
-un minuto la liga muestra el corte nuevo. El avance de cada corte se va acumulando en
+1. Abre https://cateladino.github.io/tablero-plantillas-oracle/?pmo=1
+2. **Cargar archivo Excel** y revisa que el corte se vea bien.
+3. **Publicar**, escribe la contraseña del equipo y listo.
+
+También se puede subir el Excel a mano a la carpeta [`datos/`](datos) con
+**Add file → Upload files**. Por cualquiera de los dos caminos, el sitio se regenera
+solo y en aproximadamente un minuto la liga muestra el corte nuevo. El avance de cada corte se va acumulando en
 `datos/historico.json`, que es lo que alimenta el panel «Avance entre cortes».
 
 Si el Excel se sube con otro nombre, no importa: se usa el archivo `.xlsx` más reciente
@@ -25,6 +28,7 @@ de la carpeta `datos/`.
 | `plantilla/` | El tablero sin datos. Aquí vive el diseño, no la información. |
 | `scripts/` | `generar.py`, que lee el Excel y construye `index.html`. |
 | `index.html` | El tablero publicado. Se genera solo: no se edita a mano. |
+| `estevezjor/` | El intermediario de Cloudflare que recibe el Excel desde el tablero. |
 
 ## Etapas que se siguen
 

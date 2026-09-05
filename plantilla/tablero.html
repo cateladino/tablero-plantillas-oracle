@@ -217,13 +217,13 @@ body.pres .det{display:none}
     <h3>Publicar este corte en el sitio</h3>
     <p id="pubintro"></p>
     <div class="fila" id="pubtoken">
-      <input type="password" id="ghtoken" placeholder="Token de GitHub (empieza con github_pat_ o ghp_)" autocomplete="off">
-      <label><input type="checkbox" id="ghrec" checked> Recordarlo en este navegador</label>
+      <input type="password" id="ghtoken" placeholder="Contraseña del equipo" autocomplete="off">
+      <label><input type="checkbox" id="ghrec" checked> Recordarla en este navegador</label>
     </div>
     <div class="fila" style="margin-top:11px">
       <button class="btn" id="bpubok" onclick="publicarGitHub()">Publicar</button>
       <button class="btn sec" onclick="cerrarPublicar()">Cancelar</button>
-      <button class="btn sec" id="bpubolvidar" hidden onclick="olvidarToken()">Usar otro token</button>
+      <button class="btn sec" id="bpubolvidar" hidden onclick="olvidarToken()">Escribir otra contraseña</button>
     </div>
     <div class="msj" id="pubmsj"></div>
   </div>
@@ -461,15 +461,15 @@ const drop = document.getElementById("drop");
 ["dragleave","drop"].forEach(ev=>document.body.addEventListener(ev,e=>{e.preventDefault();
   if(ev==="drop"&&e.dataTransfer.files[0]) cargar(e.dataTransfer.files[0]); drop.classList.remove("hot");}));
 
-/* ---------- publicar en el sitio (solo PMO) ---------- */
-/* El token de GitHub nunca viaja dentro de esta página: lo escribe la PMO una vez
-   y se queda en el navegador de su equipo. Cualquier otra persona que abra el sitio
-   ve el tablero, pero no puede publicar.                                            */
-const GH = { duenio:"cateladino", repo:"tablero-plantillas-oracle", rama:"main",
-             ruta:"datos/Control_Plantillas_NetSuite_V1.xlsx" };
+/* ---------- publicar en el sitio ---------- */
+/* La credencial de GitHub no puede vivir en una página pública, así que el archivo
+   se manda a un intermediario que la guarda del lado del servidor. Quien publica
+   solo escribe la contraseña del equipo.                                           */
+const SERVICIO = "https://publicar-tablero.estevezjor.workers.dev";
+const SITIO = "https://cateladino.github.io/tablero-plantillas-oracle/";
 let ARCHIVO = null;                 // el Excel cargado en esta sesión
 
-const tokenGuardado = () => { try{ return localStorage.getItem("gh_token") || ""; }catch(e){ return ""; } };
+const tokenGuardado = () => { try{ return localStorage.getItem("clave_tablero") || ""; }catch(e){ return ""; } };
 function modoPMO(){
   return !!tokenGuardado() || location.protocol === "file:" ||
          new URLSearchParams(location.search).has("pmo");
@@ -493,7 +493,7 @@ function abrirPublicar(){
 }
 function cerrarPublicar(){ document.getElementById("pubpanel").hidden = true; }
 function olvidarToken(){
-  try{ localStorage.removeItem("gh_token"); }catch(e){}
+  try{ localStorage.removeItem("clave_tablero"); }catch(e){}
   abrirPublicar();
 }
 const b64archivo = f => new Promise((ok,fail)=>{
@@ -507,47 +507,32 @@ async function publicarGitHub(){
   const aviso = (clase, html) => { msj.className = "msj " + clase; msj.innerHTML = html; };
   if(!ARCHIVO){ aviso("error","Carga primero el archivo Excel."); return; }
 
-  let tok = tokenGuardado();
-  if(!tok){
-    tok = document.getElementById("ghtoken").value.trim();
-    if(!tok){ aviso("error","Escribe el token de GitHub para poder publicar."); return; }
+  let clave = tokenGuardado();
+  if(!clave){
+    clave = document.getElementById("ghtoken").value.trim();
+    if(!clave){ aviso("error","Escribe la contraseña del equipo para poder publicar."); return; }
   }
   boton.disabled = true;
-  aviso("espera","Subiendo el archivo a GitHub…");
+  aviso("espera","Publicando el corte…");
   try{
-    const cab = { Authorization:"Bearer "+tok, Accept:"application/vnd.github+json",
-                  "X-GitHub-Api-Version":"2022-11-28" };
-    const url = `https://api.github.com/repos/${GH.duenio}/${GH.repo}/contents/${GH.ruta}`;
-
-    const previo = await fetch(`${url}?ref=${GH.rama}`, {headers:cab});
-    if(previo.status === 401) throw new Error("El token no es válido o ya caducó. Genera uno nuevo en GitHub.");
-    if(previo.status === 403) throw new Error("El token no tiene permiso de escritura sobre este repositorio.");
-    if(!previo.ok && previo.status !== 404) throw new Error("GitHub respondió con un error ("+previo.status+").");
-    const sha = previo.ok ? (await previo.json()).sha : undefined;
-
-    const envio = await fetch(url, {
-      method:"PUT", headers:cab,
-      body: JSON.stringify({
-        message: "Corte del " + marca(new Date()),
-        content: await b64archivo(ARCHIVO),
-        branch: GH.rama, sha
-      })
+    const r = await fetch(SERVICIO, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ clave, nombre: ARCHIVO.name, contenido: await b64archivo(ARCHIVO) })
     });
-    if(!envio.ok){
-      const d = await envio.json().catch(()=>({}));
-      throw new Error(d.message || ("GitHub respondió con un error ("+envio.status+")."));
-    }
+    const d = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error || "No fue posible publicar (error "+r.status+").");
 
     if(document.getElementById("ghrec").checked){
-      try{ localStorage.setItem("gh_token", tok); }catch(e){}
+      try{ localStorage.setItem("clave_tablero", clave); }catch(e){}
     }
-    aviso("ok", `Archivo publicado. GitHub está regenerando el tablero; en aproximadamente un minuto
-      <a href="https://${GH.duenio}.github.io/${GH.repo}/" target="_blank" rel="noopener">el sitio</a>
-      mostrará este corte.`);
+    aviso("ok", `Corte publicado. En aproximadamente un minuto
+      <a href="${SITIO}" target="_blank" rel="noopener">el tablero en línea</a> mostrará esta información.`);
     document.getElementById("pubtoken").hidden = true;
     document.getElementById("bpubolvidar").hidden = false;
   }catch(err){
-    aviso("error", esc(err.message));
+    aviso("error", esc(err.message === "Failed to fetch"
+      ? "No se pudo contactar al servicio de publicación. Revisa tu conexión e inténtalo de nuevo."
+      : err.message));
   }finally{
     boton.disabled = false;
   }
