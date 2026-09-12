@@ -2,9 +2,8 @@ name: Publicar tablero
 
 # Revisa el Excel de control en Google Drive y, si cambió, regenera y publica.
 on:
-  # Se activa en cuanto datos/origen.json tenga el identificador del archivo de Drive:
-  # schedule:
-  #   - cron: '*/15 * * * *'      # cada 15 minutos (GitHub puede retrasarlo unos minutos)
+  schedule:
+    - cron: '*/15 * * * *'        # cada 15 minutos (GitHub puede retrasarlo unos minutos)
   workflow_dispatch:              # botón "Run workflow" para actualizar de inmediato
   push:
     paths:
