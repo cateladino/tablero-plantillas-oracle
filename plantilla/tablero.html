@@ -156,8 +156,6 @@ body.pres .det{display:none}
         <button id="bdet" onclick="vista('det')">Detalle</button>
       </div>
       <button class="btn primary" id="bref" onclick="leerEnVivo(true)">Actualizar</button>
-      <button class="btn primary" onclick="guardarCorte()">Guardar corte (HTML)</button>
-      <button class="btn" onclick="exportarCSV()">Exportar vista (CSV)</button>
       <button class="btn" onclick="window.print()">Imprimir / PDF</button>
     </div>
   </div>
@@ -509,7 +507,6 @@ function render(reset=true){
   ejecutivo(F);
   kpis(F); modbars(F); etapabars(F); tabla(F);
 }
-const marca = d => fmt(d)+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
 function origen(n){
   const el = document.getElementById("origen");
   const reloj = d => String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
@@ -524,35 +521,6 @@ function origen(n){
       · ${n} en la vista actual</span>`;
 }
 
-/* ---------- guardar un corte autocontenido ---------- */
-function guardarCorte(){
-  const crudo = DATOS.map(r=>({
-    id:r.id, modulo:r.modulo, codigo:r.codigo, plantilla:r.plantilla, area:r.area,
-    keyuser:r.keyuser, revisor:r.revisor, prioridad:r.prioridad,
-    ultmod: r.ultmod instanceof Date ? fmt(r.ultmod) : (r.ultmod??""),
-    obs:r.obs,
-    e: r.e.map(s=>({est:s.est, comp:fecha(s.comp)?fmt(fecha(s.comp)):"", real:fecha(s.real)?fmt(fecha(s.real)):""}))
-  }));
-  const seguro = t => JSON.stringify(t).replace(/\*\//g,"*\\/").replace(/<\//g,"<\\/");
-  const sello = {archivo: NOMBRE_ARCHIVO || "Captura manual", fecha: marca(new Date())};
-  const cAct = conteos(DATOS), dia = fmt(new Date());
-  const hist = HIST.filter(h=>h.fecha!==dia)
-                   .concat([{fecha:dia, total:cAct.total, ent:cAct.ent, proceso:cAct.proceso, sin:cAct.sin}])
-                   .slice(-12);
-  const zonas = ["origen","kpis","modbars","etapabars","tabla","fmod","fetapa","fsem","farea","fkey",
-                 "ejkpis","ejbarra","ejmod"];
-  zonas.forEach(z=>document.getElementById(z).innerHTML="");
-  let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-  render();
-  html = html.replace(/\/\*SEED_INI\*\/[\s\S]*?\/\*SEED_FIN\*\//,  "/*SEED_INI*/"+seguro(crudo)+"/*SEED_FIN*/")
-             .replace(/\/\*HIST_INI\*\/[\s\S]*?\/\*HIST_FIN\*\//,  "/*HIST_INI*/"+seguro(hist)+"/*HIST_FIN*/")
-             .replace(/\/\*SELLO_INI\*\/[\s\S]*?\/\*SELLO_FIN\*\//, "/*SELLO_INI*/"+seguro(sello)+"/*SELLO_FIN*/");
-  const f = new Date();
-  const nombre = "Tablero_Plantillas_NetSuite_"+f.getFullYear()+String(f.getMonth()+1).padStart(2,"0")+String(f.getDate()).padStart(2,"0")+".html";
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([html],{type:"text/html;charset=utf-8"}));
-  a.download = nombre; a.click(); URL.revokeObjectURL(a.href);
-}
 function kpis(F){
   const n = F.length;
   const av = n ? F.reduce((a,r)=>a+r.avance,0)/n : 0;
@@ -629,22 +597,6 @@ function tabla(F){
   document.getElementById("tabla").innerHTML = h + `</tbody>`;
 }
 function ordenar(c){ ORDEN = {col:c, dir: ORDEN.col===c ? -ORDEN.dir : 1}; tabla(filtrar()); }
-
-function exportarCSV(){
-  const F = filtrar();
-  const enc = ["ID","Modulo","Codigo","Plantilla","Area","Key User","Revisor","Prioridad",
-    ...ETAPAS_CORTA.flatMap(e=>[e+" Estatus",e+" Compromiso",e+" Real"]),
-    "Etapa vigente","% Avance","Proxima fecha compromiso","Dias restantes","Semaforo","Observaciones"];
-  const q = s => `"${String(s??"").replace(/"/g,'""')}"`;
-  const filas = F.map(r=>[r.id,r.modulo,r.codigo,r.plantilla,r.area,r.keyuser,r.revisor,r.prioridad,
-    ...r.e.flatMap(s=>[s.est,fmt(fecha(s.comp)),fmt(fecha(s.real))]),
-    r.etapa,(r.avance*100).toFixed(1)+"%",fmt(r.prox),r.dias===null?"":r.dias,r.sem,r.obs].map(q).join(","));
-  const csv = "\uFEFF" + [enc.map(q).join(",")].concat(filas).join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
-  a.download = "Control_Plantillas_NetSuite_"+new Date().toISOString().slice(0,10)+".csv";
-  a.click(); URL.revokeObjectURL(a.href);
-}
 
 if(SELLO && SELLO.archivo){ ORIGEN = "corte"; NOMBRE_ARCHIVO = SELLO.archivo; }
 DATOS = SEED.map(calcular);
