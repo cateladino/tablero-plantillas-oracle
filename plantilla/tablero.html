@@ -194,8 +194,10 @@ body.pres .det{display:none}
       </div>
     </div>
     <div class="panel">
-      <h2>Plantillas por etapa vigente</h2>
+      <h2>En qué paso va cada plantilla</h2>
       <div class="body" id="etapabars"></div>
+      <div class="legend"><span>Cada plantilla aparece una sola vez, en el paso donde está hoy.
+        «Entregadas a Oracle» son las que ya completaron los tres pasos.</span></div>
     </div>
   </div>
 
@@ -241,15 +243,20 @@ body.pres .det{display:none}
    Los KPI, la matriz, las gráficas y la exportación se ajustan solos.       */
 const ETAPAS_CFG = [
   { col:"E1 Llenado",     corto:"E1 Llenado",     largo:"1. Llenado de plantilla",
-    peso:0.50, kpi:"Llenado concluido",  pie:"muestra del 10% solicitada por Oracle" },
+    curso:"En llenado", peso:0.50,
+    kpi:"Llenado concluido",  pie:"muestra del 10% solicitada por Oracle" },
   { col:"E2 Revisión",    corto:"E2 Revisión",    largo:"2. Revisión y validación",
-    peso:0.25, kpi:"Revisión concluida", pie:"validada con el revisor o consultor" },
+    curso:"En revisión y validación", peso:0.25,
+    kpi:"Revisión concluida", pie:"validada con el revisor o consultor" },
   { col:"E3 Repositorio", corto:"E3 Repositorio", largo:"3. Carga en repositorio Oracle",
-    peso:0.25, kpi:"Cargadas a Oracle",  pie:"entregadas para su configuración" }
+    curso:"En proceso de carga a Oracle", peso:0.25,
+    kpi:"Cargadas a Oracle",  pie:"entregadas para su configuración" }
 ];
-const CIERRE = "Concluida · cargada a Oracle";
+const CIERRE = "Entregadas a Oracle";
 const NE = ETAPAS_CFG.length;
-const ETAPAS = ETAPAS_CFG.map(e=>e.largo).concat(CIERRE);
+/* «curso» describe dónde está parada la plantilla hoy; «largo» nombra la etapa
+   como tal y solo se usa en la leyenda de ponderación.                        */
+const ETAPAS = ETAPAS_CFG.map(e=>e.curso).concat(CIERRE);
 const ETAPAS_CORTA = ETAPAS_CFG.map(e=>e.corto);
 let PESOS = ETAPAS_CFG.map(e=>e.peso);
 let DATOS = [], ORIGEN = "demo", NOMBRE_ARCHIVO = "", ORDEN = {col:"id", dir:1};
@@ -489,7 +496,7 @@ function render(reset=true){
   if(reset){
     const u = c => [...new Set(DATOS.map(r=>r[c]).filter(Boolean))].sort();
     opciones(document.getElementById("fmod"),"Todos los módulos",u("modulo"));
-    opciones(document.getElementById("fetapa"),"Todas las etapas",ETAPAS);
+    opciones(document.getElementById("fetapa"),"Todos los pasos",ETAPAS);
     opciones(document.getElementById("fsem"),"Todos los semáforos",["Concluida","En tiempo","En riesgo","Vencido","Bloqueado","Sin fecha"]);
     opciones(document.getElementById("farea"),"Todas las áreas",u("area"));
     opciones(document.getElementById("fkey"),"Todos los Key Users",u("keyuser"));
@@ -588,7 +595,7 @@ function etapabars(F){
 }
 const COLS = [
   ["id","ID"],["modulo","Módulo"],["codigo","Cód."],["plantilla","Plantilla"],
-  ["keyuser","Key User"],["etapa","Etapa vigente"],["rail","Vía de etapas"],
+  ["keyuser","Key User"],["etapa","Paso actual"],["rail","Vía de etapas"],
   ["avance","% Avance"],["prox","Próx. compromiso"],["dias","Días"],["sem","Semáforo"],["obs","Observaciones"]
 ];
 function tabla(F){
