@@ -149,7 +149,12 @@ def main():
 
     ahora = datetime.datetime.now(TZ)
     dia   = ahora.strftime("%d/%m/%Y")
-    sello = {"archivo": os.path.basename(ruta), "fecha": ahora.strftime("%d/%m/%Y %H:%M")}
+    # el nombre que se muestra es el del archivo en Drive, no el del archivo local
+    nombre_drive = os.path.basename(ruta)
+    if os.path.exists(os.path.join(RAIZ, "datos", "origen.json")):
+        with open(os.path.join(RAIZ, "datos", "origen.json"), encoding="utf-8") as f:
+            nombre_drive = json.load(f).get("nombre") or nombre_drive
+    sello = {"archivo": nombre_drive, "fecha": ahora.strftime("%d/%m/%Y %H:%M")}
     hist  = historico(conteos(filas), dia)
 
     html = plantilla
