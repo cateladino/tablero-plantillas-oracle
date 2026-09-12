@@ -126,10 +126,6 @@ body.pres .det{display:none}
   font-weight:600;cursor:pointer;transition:.15s}
 .segctl button:hover{background:rgba(255,255,255,.12)}
 .segctl button.on{background:#fff;color:var(--navy)}
-.ejfrase{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--steel);
-  border-radius:9px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--shadow);
-  font-size:15.5px;line-height:1.62;color:var(--ink)}
-.ejfrase b{color:var(--navy)}
 .bigkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:16px}
 .bigkpi{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:16px 18px 15px;
   box-shadow:var(--shadow);border-top:3px solid var(--line)}
@@ -157,25 +153,11 @@ body.pres .det{display:none}
 .ejmod .stack{height:26px}
 .ejmod .cnt{text-align:right;font-size:13px;color:var(--mute)}
 .ejmod .cnt b{font-size:19px;color:var(--navy)}
-.dec{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
-.dec:last-child{border-bottom:none}
-.dec .pr{flex:none;width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;color:#fff;background:var(--steel)}
-.dec.alta .pr{background:var(--bad)}
-.dec .tt{font-size:13.5px;font-weight:620;color:var(--ink)}
-.dec .dd{font-size:12.5px;color:var(--mute);margin-top:2px;line-height:1.5}
-.histab{width:100%;border-collapse:collapse}
-.histab th{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mute);font-weight:650;
-  text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
-.histab th:first-child{text-align:left}
-.histab td{font-size:12.5px;padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
-.histab td:first-child{text-align:left}
-.histab tr.act td{font-weight:700;color:var(--navy);background:#F7F9FC}
 @media(max-width:820px){.ejmod{grid-template-columns:1fr;gap:6px}.ejmod .cnt{text-align:left}}
 @media print{
   body{background:#fff} header{background:var(--navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .tools,.drop,.filters{display:none!important}
-  .ejfrase{font-size:13.5px} .bigkpi .val{font-size:36px}
+  .bigkpi .val{font-size:36px}
   .ej .panel{break-inside:avoid}
   .tablewrap{max-height:none;overflow:visible}
   .panel,.kpi{break-inside:avoid;box-shadow:none}
@@ -236,7 +218,6 @@ body.pres .det{display:none}
 
   <!-- ===================== RESUMEN EJECUTIVO ===================== -->
   <section class="ej">
-    <div class="ejfrase" id="ejfrase"></div>
     <div class="bigkpis" id="ejkpis"></div>
 
     <div class="panel" style="margin-bottom:16px">
@@ -244,20 +225,9 @@ body.pres .det{display:none}
       <div class="body" id="ejbarra"></div>
     </div>
 
-    <div class="panel" style="margin-bottom:16px">
+    <div class="panel">
       <h2>Avance por frente de trabajo</h2>
       <div class="body" id="ejmod"></div>
-    </div>
-
-    <div class="grid">
-      <div class="panel">
-        <h2>Decisiones que requerimos de dirección</h2>
-        <div class="body" id="ejdec"></div>
-      </div>
-      <div class="panel">
-        <h2>Avance entre cortes</h2>
-        <div class="body" id="ejhist"></div>
-      </div>
     </div>
   </section>
 
@@ -350,7 +320,7 @@ let DATOS = [], ORIGEN = "demo", NOMBRE_ARCHIVO = "", ORDEN = {col:"id", dir:1};
 
 const SEED  = /*SEED_INI*/[{"id":"FIN-01","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Clases","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-02","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - COA MX Plan de Cuentas","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-07-30","obs":"","e":[{"est":"Completado","comp":"03/09/2026","real":"03/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"}]},{"id":"FIN-03","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Departamentos","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-04","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Plantilla Subsidiarias","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""},{"est":"Completado","comp":"","real":""}]},{"id":"FIN-05","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Ubicaciones","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"2026-03-13","obs":"","e":[{"est":"Completado","comp":"07/09/2026","real":"07/09/2026"},{"est":"Completado","comp":"08/09/2026","real":"09/09/2026"},{"est":"Completado","comp":"08/09/2026","real":"07/09/2026"}]},{"id":"CMP-01","modulo":"Compras (P2P)","codigo":"210","plantilla":"Proveedores","area":"Compras / Abastecimiento","keyuser":"Nancy Ruiz Ruiz\nAna Laura Cedillo","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"","obs":"","e":[{"est":"Completado","comp":"07/09/2026","real":""},{"est":"En proceso","comp":"08/09/2026","real":""},{"est":"No iniciado","comp":"08/09/2026","real":""}]},{"id":"CMP-02","modulo":"Compras (P2P)","codigo":"220","plantilla":"Empleados","area":"Capital Humano","keyuser":"Caterrine Ladino","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"","obs":"","e":[{"est":"Completado","comp":"03/09/2026","real":"03/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"},{"est":"Completado","comp":"04/09/2026","real":"04/09/2026"}]},{"id":"VTA-01","modulo":"Ventas (O2C)","codigo":"300","plantilla":"MX Clientes","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"Completado","comp":"09/09/2026","real":""},{"est":"En proceso","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"VTA-02","modulo":"Ventas (O2C)","codigo":"310","plantilla":"MX Contactos","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"VTA-03","modulo":"Ventas (O2C)","codigo":"320","plantilla":"MX Direcciones","area":"Comercial / Ventas","keyuser":"Itzel Barcena\nErick Carmona","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-05-26","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-01","modulo":"Inventarios (D2B)","codigo":"401","plantilla":"MX Unidades de Medida","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-02","modulo":"Inventarios (D2B)","codigo":"402","plantilla":"MX SAT Clave Producto Servicio","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-03","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-03","modulo":"Inventarios (D2B)","codigo":"403","plantilla":"MX SAT Clave de Unidad","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-04","modulo":"Inventarios (D2B)","codigo":"404","plantilla":"MX SAT Clave Arancelaria","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-05","modulo":"Inventarios (D2B)","codigo":"410","plantilla":"MX Artículo de Inventario","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-06","modulo":"Inventarios (D2B)","codigo":"411","plantilla":"MX Artículo Fuera de Inventario para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-07","modulo":"Inventarios (D2B)","codigo":"412","plantilla":"MX Artículo Fuera de Inventario para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-08","modulo":"Inventarios (D2B)","codigo":"413","plantilla":"MX Artículo Fuera de Inventario para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-09","modulo":"Inventarios (D2B)","codigo":"414","plantilla":"MX Artículo con Descuento","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-10","modulo":"Inventarios (D2B)","codigo":"415","plantilla":"MX Artículo con Recargo","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-11","modulo":"Inventarios (D2B)","codigo":"416","plantilla":"MX Artículo de Servicio para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-12","modulo":"Inventarios (D2B)","codigo":"417","plantilla":"MX Artículo de Servicio para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-13","modulo":"Inventarios (D2B)","codigo":"418","plantilla":"MX Artículo de Servicio para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-14","modulo":"Inventarios (D2B)","codigo":"419","plantilla":"MX Artículo de Otro Cargo para la Compra","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-15","modulo":"Inventarios (D2B)","codigo":"420","plantilla":"MX Artículo de Otro Cargo para la Venta","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-16","modulo":"Inventarios (D2B)","codigo":"421","plantilla":"MX Artículo de Otro Cargo para la Reventa","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-17","modulo":"Inventarios (D2B)","codigo":"450","plantilla":"MX Grupo de Artículos","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-18","modulo":"Inventarios (D2B)","codigo":"451","plantilla":"MX Kit de Artículos","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-19","modulo":"Inventarios (D2B)","codigo":"460","plantilla":"MX Artículos de Inventario por Lote","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-20","modulo":"Inventarios (D2B)","codigo":"461","plantilla":"MX Artículos de Inventario por Serie","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-21","modulo":"Inventarios (D2B)","codigo":"462","plantilla":"MX Depósito","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-22","modulo":"Inventarios (D2B)","codigo":"464","plantilla":"MX Configuración de Ubicación de Artículo","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"INV-23","modulo":"Inventarios (D2B)","codigo":"472","plantilla":"MX Costo de Revaluación de Inventario","area":"Almacén / Inventarios","keyuser":"Jesus Ramirez","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-03-19","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-01","modulo":"Manufactura (MFG)","codigo":"410","plantilla":"MX Artículo de Inventario Manufactura","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-04","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-03","modulo":"Manufactura (MFG)","codigo":"510","plantilla":"Listas de Materiales","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-06-05","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-04","modulo":"Manufactura (MFG)","codigo":"520","plantilla":"Revisión de Listas de Materiales Estándar","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-05","modulo":"Manufactura (MFG)","codigo":"530","plantilla":"Artículos de Ensamble Lotizados","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"MFG-06","modulo":"Manufactura (MFG)","codigo":"540","plantilla":"Artículos de Ensamble","area":"Manufactura / Producción","keyuser":"Alberto Romero","revisor":"Jose Mauricio Caranza","prioridad":"Alta","ultmod":"2026-04-02","obs":"","e":[{"est":"En proceso","comp":"09/09/2026","real":""},{"est":"No iniciado","comp":"10/09/2026","real":""},{"est":"No iniciado","comp":"11/09/2026","real":""}]},{"id":"ACF-01","modulo":"Activos Fijos (FA)","codigo":"600","plantilla":"Tipos de Activo Fijo","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"ACF-02","modulo":"Activos Fijos (FA)","codigo":"610","plantilla":"Alta de Activos Fijos","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"ACF-03","modulo":"Activos Fijos (FA)","codigo":"620","plantilla":"Métodos y Reglas de Depreciación","area":"Activos Fijos / Patrimonio","keyuser":"","revisor":"","prioridad":"Alta","ultmod":"","obs":"Solo 1 de las 3 plantillas está en el Drive (Plantilla.Activos.fijos.xlsx, 31/08/2026); faltan 2 por generar. Sin Key User asignado.","e":[{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]},{"id":"FIN-06","modulo":"Finanzas (R2R)","codigo":"—","plantilla":"ESTEVEZ - Impuestos y Retenciones MX","area":"Finanzas / Contabilidad","keyuser":"Angelica Ramirez","revisor":"Brandon / Maria Fernanda","prioridad":"Alta","ultmod":"05/09/2026","obs":"Identificada en el Drive del proyecto (08_ESTEVEZ - Impuestos y Retenciones MX, últ. modificación 05/09/2026). Falta acordar fecha compromiso.","e":[{"est":"En proceso","comp":"","real":""},{"est":"No iniciado","comp":"","real":""},{"est":"No iniciado","comp":"","real":""}]}]/*SEED_FIN*/;
 const HIST = /*HIST_INI*/[{"fecha":"05/09/2026","total":43,"ent":5,"sin":3,"proceso":35},{"fecha":"09/09/2026","total":43,"ent":6,"sin":3,"proceso":34},{"fecha":"12/09/2026","total":42,"ent":6,"sin":3,"proceso":33}]/*HIST_FIN*/;   // cortes anteriores, para medir el avance entre semanas
-const SELLO = /*SELLO_INI*/{"archivo":"Control_Plantillas_NetSuite_V1.xlsx","fecha":"12/09/2026 08:19"}/*SELLO_FIN*/;
+const SELLO = /*SELLO_INI*/{"archivo":"Control_Plantillas_NetSuite_V1.xlsx","fecha":"12/09/2026 10:07"}/*SELLO_FIN*/;
 
 /* ---------- utilidades ---------- */
 const hoy = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
@@ -604,17 +574,6 @@ function ejecutivo(F){
   const mods = [...agrupar(F,"modulo").entries()].map(([k,rs])=>({
     mod:k, rs, n:rs.length, ent:rs.filter(entregada).length, resp:responsable(rs), c:conteos(rs)
   })).sort((a,b)=>(b.n-b.ent)-(a.n-a.ent) || b.n-a.n);
-  const sinKey = F.filter(r=>!String(r.keyuser||"").trim());
-
-  /* --- frase de estatus --- */
-  let t = `Al <b>${esc(corte)}</b>, <b>${c.ent} de ${c.total} plantillas</b> están cargadas en el repositorio de Oracle`;
-  if(delta!==null) t += ` <b>(${delta>0?"+"+delta:delta} respecto al corte del ${esc(prev.fecha)})</b>`;
-  t += `. ${c.proceso} están en captura o revisión y ${c.sin} aún no inician.`;
-  const reza = mods[0];
-  if(reza && reza.n-reza.ent > 0)
-    t += ` El frente con mayor pendiente es <b>${esc(nombreMod(reza.mod))}</b>, con ${reza.n-reza.ent} plantillas por entregar.`;
-  if(sinKey.length) t += ` <b>${sinKey.length} plantillas siguen sin Key User asignado.</b>`;
-  document.getElementById("ejfrase").innerHTML = t;
 
   /* --- cuatro números grandes --- */
   const p = c.total ? c.ent/c.total : 0;
@@ -650,41 +609,6 @@ function ejecutivo(F){
       <div class="cnt num"><b>${m.ent}</b> / ${m.n}<div class="mini">entregadas</div></div>
     </div>`).join("") : `<div class="empty">Sin datos para los filtros aplicados.</div>`;
 
-  /* --- decisiones para dirección --- */
-  const D = [];
-  if(sinKey.length){
-    const g = [...new Set(sinKey.map(r=>nombreMod(r.modulo)))].join(", ");
-    D.push({a:1, tt:`Asignar Key User en ${g}`,
-      dd:`${sinKey.length} plantillas no tienen responsable de llenado, por lo que hoy nadie puede avanzarlas. Se requiere que dirección designe al responsable por área.`});
-  }
-  const bloq = F.filter(r=>r.bloqueada);
-  if(bloq.length) D.push({a:1, tt:`Resolver ${bloq.length} plantilla${bloq.length>1?"s":""} bloqueada${bloq.length>1?"s":""}`,
-      dd: bloq.slice(0,3).map(r=>esc(r.plantilla)+(r.obs?" — "+esc(r.obs):"")).join(" · ")});
-  const venc = F.filter(r=>r.sem==="Vencido");
-  if(venc.length) D.push({a:1, tt:`${venc.length} plantillas con fecha compromiso vencida`,
-      dd:`Concentradas en ${[...new Set(venc.map(r=>nombreMod(r.modulo)))].join(", ")}. Requieren replanteo de fecha o apoyo adicional al área.`});
-  mods.filter(m=>m.ent===0 && m.n>=5).slice(0,2).forEach(m=>{
-    D.push({a:2, tt:`Acelerar ${nombreMod(m.mod)}: ${m.n} plantillas sin entregar`,
-      dd:`Es el ${pct(m.n/(c.total||1))} del alcance total y ninguna ha llegado al repositorio de Oracle. Responsable: ${esc(m.resp)}.`});
-  });
-  const sf = F.filter(r=>r.sem==="Sin fecha");
-  if(sf.length) D.push({a:2, tt:`Acordar fecha compromiso de ${sf.length} plantillas`,
-      dd:`Sin fecha comprometida no es posible proyectar cuándo quedará completo el paquete que espera Oracle.`});
-  document.getElementById("ejdec").innerHTML = D.length
-    ? D.sort((x,y)=>x.a-y.a).slice(0,5).map((d,i)=>`
-      <div class="dec ${d.a===1?"alta":""}"><div class="pr">${i+1}</div>
-        <div><div class="tt">${d.tt}</div><div class="dd">${d.dd}</div></div></div>`).join("")
-    : `<div class="empty">Sin temas que requieran decisión de dirección en este corte.</div>`;
-
-  /* --- avance entre cortes --- */
-  const H = HIST.filter(h=>h.fecha!==corte).slice(-5);
-  document.getElementById("ejhist").innerHTML = H.length ? `
-    <table class="histab"><thead><tr><th>Corte</th><th>Entregadas</th><th>En proceso</th><th>Sin iniciar</th></tr></thead>
-    <tbody>${H.map(h=>`<tr><td>${esc(h.fecha)}</td><td class="num">${h.ent}</td><td class="num">${h.proceso}</td><td class="num">${h.sin}</td></tr>`).join("")}
-    <tr class="act"><td>${esc(corte)} · actual</td><td class="num">${c.ent}</td><td class="num">${c.proceso}</td><td class="num">${c.sin}</td></tr>
-    </tbody></table>`
-    : `<div class="mini" style="line-height:1.6">Este es el primer corte registrado. Cada vez que uses <b>Guardar corte</b>
-       se agrega un renglón aquí, y desde el siguiente corte el tablero mostrará cuántas plantillas avanzaron de una semana a otra.</div>`;
 }
 function vista(v){
   document.body.classList.toggle("pres", v==="pres");
@@ -739,7 +663,7 @@ function guardarCorte(){
                    .concat([{fecha:dia, total:cAct.total, ent:cAct.ent, proceso:cAct.proceso, sin:cAct.sin}])
                    .slice(-12);
   const zonas = ["origen","kpis","modbars","etapabars","matriz","alertas","tabla","fmod","fetapa","fsem","farea","fkey",
-                 "ejfrase","ejkpis","ejbarra","ejmod","ejdec","ejhist"];
+                 "ejkpis","ejbarra","ejmod"];
   zonas.forEach(z=>document.getElementById(z).innerHTML="");
   let html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
   render();
@@ -764,9 +688,6 @@ function kpis(F){
       return [cfg.kpi, q+" / "+n, cfg.pie, n&&q===n?"good":""];
     }),
     ["Vencidas", c("Vencido"), "fecha compromiso rebasada", c("Vencido")?"alert":""],
-    ["En riesgo", c("En riesgo"), "vencen en 7 días o menos", c("En riesgo")?"warn":""],
-    ["Bloqueadas", c("Bloqueado"), "requieren decisión", c("Bloqueado")?"alert":""],
-    ["Sin fecha compromiso", c("Sin fecha"), "por acordar con el área", c("Sin fecha")?"warn":""],
   ];
   document.getElementById("kpis").innerHTML = K.map(([l,val,f,cl])=>
     `<div class="kpi ${cl}"><div class="lbl">${l}</div><div class="val num">${val}</div><div class="foot">${f}</div></div>`).join("");
